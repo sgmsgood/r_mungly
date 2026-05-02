@@ -1,6 +1,5 @@
-import { DeviceFrame } from './components/DeviceFrame';
-import { DeviceButtons } from './components/DeviceButtons';
-import { GameScreen } from './components/GameScreen';
+import { GameScreen } from './features/mungly-game';
+import { DeviceButtons, DeviceFrame } from './shared/ui/device';
 import './App.css';
 
 function App() {

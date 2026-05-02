@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useGameStore } from '../stores/gameStore';
+import { useGameStore } from '../../model/gameStore';
 import { PixelRoom } from './PixelRoom';
 
 function formatLeft(ms: number) {
@@ -22,10 +22,25 @@ export function ResistTimer() {
   const done = remaining <= 0;
 
   return (
-    <PixelRoom
-      thoughtText={null}
+    <ResistingRoom
       timerText={done ? '0:00' : formatLeft(remaining)}
       mantraText={done ? '잘 참았어?' : '참을 수 있다,,,'}
+    />
+  );
+}
+
+function ResistingRoom({
+  timerText,
+  mantraText,
+}: {
+  timerText: string;
+  mantraText: string;
+}) {
+  return (
+    <PixelRoom
+      thoughtText={null}
+      timerText={timerText}
+      mantraText={mantraText}
     />
   );
 }
