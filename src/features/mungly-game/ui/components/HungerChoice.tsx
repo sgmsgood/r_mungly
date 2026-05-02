@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { MUNGLY_IMAGES } from '../../data/munglyImages';
 import { useGameStore } from '../../model/gameStore';
 import './HungerChoice.css';
 
@@ -55,7 +56,7 @@ function HungerChoicePet() {
   return (
     <div className="hunger-choice-pet" aria-hidden="true">
       <img
-        src="/assets/gif/mozzi_basic.gif"
+        src={MUNGLY_IMAGES.basic}
         className="hunger-choice-img"
         alt=""
         style={{ imageRendering: 'pixelated' }}

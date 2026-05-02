@@ -1,4 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
+import { MUNGLY_IMAGES } from '../../data/munglyImages';
+import { MEAL_THOUGHT } from '../../model/gameFlow';
 import { useGameStore } from '../../model/gameStore';
 import type { Reaction } from '../../model/gameTypes';
 import { ItemReaction } from './ItemReaction';
@@ -22,6 +24,9 @@ export function PixelRoom({
   const visibleRoomThought = thoughtText === undefined
     ? munglyThought ?? '어떤 상태야?'
     : thoughtText;
+  const munglyImage = munglyThought === MEAL_THOUGHT
+    ? MUNGLY_IMAGES.happy
+    : MUNGLY_IMAGES.basic;
 
   useEffect(() => {
     if (!munglyThoughtEndsAt) return;
@@ -39,6 +44,7 @@ export function PixelRoom({
         timerText={timerText}
         mantraText={mantraText}
         isReactionShowing={Boolean(reaction)}
+        imageSrc={munglyImage}
       />
       <ReactionLayer reaction={reaction} />
     </Room>
@@ -106,6 +112,7 @@ function RoomCushion() {
 
 interface MunglyStageProps extends Props {
   isReactionShowing: boolean;
+  imageSrc: string;
 }
 
 function MunglyStage({
@@ -113,6 +120,7 @@ function MunglyStage({
   timerText,
   mantraText,
   isReactionShowing,
+  imageSrc,
 }: MunglyStageProps) {
   const visibleThoughtText = timerText || isReactionShowing ? null : thoughtText;
 
@@ -121,7 +129,7 @@ function MunglyStage({
       <MantraBubble text={mantraText} />
       <TimerBubble text={timerText} />
       <ThoughtBubble text={visibleThoughtText} />
-      <MunglyCharacter />
+      <MunglyCharacter imageSrc={imageSrc} />
     </div>
   );
 }
@@ -155,11 +163,11 @@ function ThoughtBubble({ text }: { text?: string | null }) {
   );
 }
 
-function MunglyCharacter() {
+function MunglyCharacter({ imageSrc }: { imageSrc: string }) {
   return (
     <>
       <img
-        src="/assets/gif/mozzi_basic.gif"
+        src={imageSrc}
         className="character-img"
         alt="모찌"
         style={{ imageRendering: 'pixelated' }}
