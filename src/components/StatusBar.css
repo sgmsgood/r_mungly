@@ -1,0 +1,31 @@
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 4px;
+  flex-shrink: 0;
+}
+
+.status-level {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--p500);
+  letter-spacing: 0.5px;
+}
+
+.status-hearts {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.status-heart {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--p200);
+}
+
+.status-heart.filled {
+  background: var(--p400);
+}

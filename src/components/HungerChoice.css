@@ -1,0 +1,90 @@
+.hunger-choice {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 18px 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0 44px, transparent 44px),
+    var(--char-bg);
+  overflow: hidden;
+}
+
+.hunger-choice-pet {
+  width: 116px;
+  height: 98px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.hunger-choice-img {
+  width: 108px;
+  display: block;
+  filter: drop-shadow(0 5px 0 rgba(159, 121, 94, 0.16));
+}
+
+.hunger-choice-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #7a3e36;
+  text-align: center;
+}
+
+.hunger-choice-kicker {
+  font-size: 11px;
+  font-weight: 800;
+  color: #b8756c;
+}
+
+.hunger-choice-text strong {
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.hunger-choice-list {
+  width: 100%;
+  display: grid;
+  gap: 16px;
+}
+
+.hunger-choice-card {
+  position: relative;
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #fffdf8;
+  border: 3px solid #d8c7b8;
+  border-radius: 0;
+  box-shadow: 0 4px 0 #eadfd6;
+  color: #6b4a3a;
+}
+
+.hunger-choice-card.selected {
+  background: #fff1ef;
+  border-color: #ff7a6b;
+  box-shadow: 0 4px 0 #ffd8d2;
+}
+
+.hunger-choice-title {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.hunger-choice-caption {
+  font-size: 10px;
+  font-weight: 800;
+  color: #9c7a6f;
+}
+
+.hunger-choice-card.selected .hunger-choice-caption {
+  color: #9f4d43;
+}
