@@ -8,11 +8,13 @@ interface Props {
   reactionKey: number;
 }
 
+const REACTION_LIFETIME_MS = 1000;
+
 export function ItemReaction({ emoji, assetPath, reactionKey }: Props) {
   const hideFoodReaction = useGameStore((s) => s.hideFoodReaction);
 
   useEffect(() => {
-    const t = setTimeout(hideFoodReaction, 1000);
+    const t = setTimeout(hideFoodReaction, REACTION_LIFETIME_MS);
     return () => clearTimeout(t);
   }, [reactionKey, hideFoodReaction]);
 

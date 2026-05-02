@@ -25,5 +25,7 @@ export interface GameState {
   choiceReadyAt: number;
   gridReadyAt: number;
   reaction: Reaction | null;
+  munglyThought: string | null;
+  munglyThoughtEndsAt: number | null;
+  lastFoodIndex: number | null;
 }
-

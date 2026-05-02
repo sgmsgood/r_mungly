@@ -2,14 +2,22 @@ import { create } from 'zustand';
 import { ITEMS } from '../data/gameItems';
 import {
   canPickFood,
+  clearMealThought,
+  closeMealChoices,
   getNextFoodChoice,
   getNextItemIndex,
   getNextMainMode,
+  getNextMealFollowUpChoice,
   getPreviousFoodChoice,
   getPreviousItemIndex,
   getPreviousMainMode,
+  getPreviousMealFollowUpChoice,
+  isMealFollowUpShowing,
+  keepMealChoicesVisible,
   openFoodGrid,
+  openFoodGridAfterMeal,
   pickFoodChoice,
+  showFoodReaction,
   showFoodChoiceScreen,
   startMainAction,
   startTenMinuteWait,
@@ -33,6 +41,13 @@ interface FoodChoiceActions {
   startTenMinuteWait: () => void;
 }
 
+interface MealFollowUpActions {
+  eatSameFoodAgain: () => void;
+  openFoodGridAfterMeal: () => void;
+  closeMealChoices: () => void;
+  clearMealThought: () => void;
+}
+
 interface ItemChoiceActions {
   pickItem: (index: number) => void;
   getItemsForCurrentMode: () => GameItem[];
@@ -46,6 +61,7 @@ type GameActions =
   DeviceButtonActions &
   MainChoiceActions &
   FoodChoiceActions &
+  MealFollowUpActions &
   ItemChoiceActions &
   FoodReactionActions;
 
@@ -58,14 +74,31 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   choiceReadyAt: 0,
   gridReadyAt: 0,
   reaction: null,
+  munglyThought: null,
+  munglyThoughtEndsAt: null,
+  lastFoodIndex: null,
 
   getItemsForCurrentMode: () => ITEMS[get().mode],
 
   onLeft: () => {
-    const { screen, mode, selectedIndex } = get();
+    const state = get();
+    const { screen, mode, selectedIndex } = state;
 
     if (screen === 'main') {
-      set({ mode: getPreviousMainMode(mode), selectedIndex: 0 });
+      if (isMealFollowUpShowing(state)) {
+        set({
+          selectedIndex: getPreviousMealFollowUpChoice(selectedIndex),
+          ...keepMealChoicesVisible(Date.now()),
+        });
+        return;
+      }
+
+      set({
+        mode: getPreviousMainMode(mode),
+        selectedIndex: 0,
+        munglyThought: null,
+        munglyThoughtEndsAt: null,
+      });
       return;
     }
 
@@ -84,10 +117,24 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
 
   onRight: () => {
-    const { screen, mode, selectedIndex } = get();
+    const state = get();
+    const { screen, mode, selectedIndex } = state;
 
     if (screen === 'main') {
-      set({ mode: getNextMainMode(mode), selectedIndex: 0 });
+      if (isMealFollowUpShowing(state)) {
+        set({
+          selectedIndex: getNextMealFollowUpChoice(selectedIndex),
+          ...keepMealChoicesVisible(Date.now()),
+        });
+        return;
+      }
+
+      set({
+        mode: getNextMainMode(mode),
+        selectedIndex: 0,
+        munglyThought: null,
+        munglyThoughtEndsAt: null,
+      });
       return;
     }
 
@@ -112,6 +159,15 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     if (state.page === 'settings') return;
 
     if (state.screen === 'main') {
+      if (isMealFollowUpShowing(state)) {
+        if (state.selectedIndex === 0) {
+          get().eatSameFoodAgain();
+          return;
+        }
+        get().openFoodGridAfterMeal();
+        return;
+      }
+
       set(startMainAction(state.mode, now));
       return;
     }
@@ -130,18 +186,21 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     if (!canPickFood(state, now)) return;
 
     const item = ITEMS[state.mode][state.selectedIndex];
-    set({
-      screen: 'main',
-      reaction: { emoji: item.emoji, assetPath: item.assetPath, key: now },
-    });
+    set(showFoodReaction(item, state.selectedIndex, now));
     if (navigator.vibrate) navigator.vibrate(30);
   },
 
   onCenterLong: () => {
-    const { page, screen } = get();
+    const state = get();
+    const { page, screen } = state;
 
     if (page === 'settings') {
       set({ page: 'game' });
+      return;
+    }
+
+    if (isMealFollowUpShowing(state)) {
+      set(closeMealChoices());
       return;
     }
 
@@ -162,7 +221,27 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     const patch = startTenMinuteWait(get(), Date.now());
     if (patch) set(patch);
   },
-  pickMode: (mode) => set({ mode, selectedIndex: 0 }),
+  eatSameFoodAgain: () => {
+    const state = get();
+    const foodIndex = state.lastFoodIndex ?? 0;
+    const item = ITEMS.food[foodIndex];
+    if (!item) return;
+    const now = Date.now();
+    set(showFoodReaction(item, foodIndex, now));
+    if (navigator.vibrate) navigator.vibrate(30);
+  },
+  openFoodGridAfterMeal: () => set(openFoodGridAfterMeal(Date.now())),
+  closeMealChoices: () => set(closeMealChoices()),
+  clearMealThought: () => {
+    const patch = clearMealThought(get(), Date.now());
+    if (patch) set(patch);
+  },
+  pickMode: (mode) => set({
+    mode,
+    selectedIndex: 0,
+    munglyThought: null,
+    munglyThoughtEndsAt: null,
+  }),
   pickItem: (index) => set({ selectedIndex: index }),
   hideFoodReaction: () => set({ reaction: null }),
 }));

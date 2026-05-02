@@ -112,6 +112,28 @@
   --choice-selected-text: #23583f;
 }
 
+.mode-btn-same-food {
+  --choice-bg: #fff1ef;
+  --choice-border: #ffb3a8;
+  --choice-shadow: #ffd8d2;
+  --choice-text: #7a3e36;
+  --choice-selected-bg: #ffded8;
+  --choice-selected-border: #ff7a6b;
+  --choice-selected-shadow: #ffc3bc;
+  --choice-selected-text: #6f2e27;
+}
+
+.mode-btn-other-food {
+  --choice-bg: #fff8e7;
+  --choice-border: #ffd571;
+  --choice-shadow: #ffedb8;
+  --choice-text: #6b5620;
+  --choice-selected-bg: #ffe9a8;
+  --choice-selected-border: #ffc247;
+  --choice-selected-shadow: #ffe39a;
+  --choice-selected-text: #59430f;
+}
+
 .mode-label {
   position: relative;
   z-index: 1;

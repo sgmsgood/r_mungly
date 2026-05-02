@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useGameStore } from '../../model/gameStore';
 import type { Reaction } from '../../model/gameTypes';
 import { ItemReaction } from './ItemReaction';
@@ -11,20 +11,34 @@ interface Props {
 }
 
 export function PixelRoom({
-  thoughtText = '어떤 상태야?',
+  thoughtText,
   timerText = null,
   mantraText = null,
 }: Props) {
   const reaction = useGameStore((s) => s.reaction);
+  const munglyThought = useGameStore((s) => s.munglyThought);
+  const munglyThoughtEndsAt = useGameStore((s) => s.munglyThoughtEndsAt);
+  const clearMealThought = useGameStore((s) => s.clearMealThought);
+  const visibleRoomThought = thoughtText === undefined
+    ? munglyThought ?? '어떤 상태야?'
+    : thoughtText;
+
+  useEffect(() => {
+    if (!munglyThoughtEndsAt) return;
+    const delay = Math.max(0, munglyThoughtEndsAt - Date.now());
+    const timerId = window.setTimeout(clearMealThought, delay);
+    return () => window.clearTimeout(timerId);
+  }, [clearMealThought, munglyThoughtEndsAt]);
 
   return (
     <Room>
       <RoomWall />
       <RoomFloor />
       <MunglyStage
-        thoughtText={thoughtText}
+        thoughtText={visibleRoomThought}
         timerText={timerText}
         mantraText={mantraText}
+        isReactionShowing={Boolean(reaction)}
       />
       <ReactionLayer reaction={reaction} />
     </Room>
@@ -90,12 +104,23 @@ function RoomCushion() {
   );
 }
 
-function MunglyStage({ thoughtText, timerText, mantraText }: Props) {
+interface MunglyStageProps extends Props {
+  isReactionShowing: boolean;
+}
+
+function MunglyStage({
+  thoughtText,
+  timerText,
+  mantraText,
+  isReactionShowing,
+}: MunglyStageProps) {
+  const visibleThoughtText = timerText || isReactionShowing ? null : thoughtText;
+
   return (
     <div className="character-wrap">
       <MantraBubble text={mantraText} />
       <TimerBubble text={timerText} />
-      <ThoughtBubble text={timerText ? null : thoughtText} />
+      <ThoughtBubble text={visibleThoughtText} />
       <MunglyCharacter />
     </div>
   );
