@@ -25,7 +25,7 @@ export function GameScreen() {
 
   return (
     <GameShell>
-      <StatusBar />
+      {screen === 'chat' ? null : <StatusBar />}
       <GameContent screen={screen} />
       <GameFooter screen={screen} />
     </GameShell>

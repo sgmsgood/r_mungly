@@ -159,7 +159,7 @@ export function openFoodGridAfterMeal(now: number): GamePatch {
 }
 
 export function startTenMinuteWait(state: GameState, now: number): GamePatch | null {
-  if (state.screen !== 'hungerChoice') return null;
+  if (state.screen !== 'hungerChoice' && state.screen !== 'chat') return null;
   if (now < state.choiceReadyAt) return null;
 
   return {

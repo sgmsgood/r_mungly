@@ -18,6 +18,8 @@ export function useChatController() {
   const chatSelectToken = useGameStore((s) => s.chatSelectToken);
   const setChatChoiceCount = useGameStore((s) => s.setChatChoiceCount);
   const pickItem = useGameStore((s) => s.pickItem);
+  const closeChatRoom = useGameStore((s) => s.closeChatRoom);
+  const startTenMinuteWait = useGameStore((s) => s.startTenMinuteWait);
   const lastHandledSelectTokenRef = useRef(chatSelectToken);
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     createMessage('moongly', INITIAL_MESSAGE),
@@ -73,7 +75,13 @@ export function useChatController() {
       ...result.context,
     }));
     setStepId(result.nextStep);
-  }, [context, draft, messages, stepId]);
+    if (result.command === 'closeChat') {
+      closeChatRoom();
+    }
+    if (result.command === 'startResistTimer') {
+      startTenMinuteWait();
+    }
+  }, [closeChatRoom, context, draft, messages, startTenMinuteWait, stepId]);
 
   const chooseOptionAtIndex = useCallback((index: number) => {
     const option = step.options?.[index];
@@ -144,4 +152,3 @@ function getCurrentTimeLabel() {
     minute: '2-digit',
   }).format(new Date());
 }
-

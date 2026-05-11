@@ -40,6 +40,14 @@ export function getStepConfig(stepId: ChatStepId, context: ChatContext): StepCon
             context: { route: 'freeLog' },
           }),
         },
+        {
+          label: '먹고싶은게 있어',
+          next: () => ({
+            nextStep: 'cravingInput',
+            botText: '좋아, 뭐가 먹고 싶어?',
+            context: { route: 'freeLog' },
+          }),
+        },
       ],
     };
   }
@@ -241,22 +249,76 @@ export function getStepConfig(stepId: ChatStepId, context: ChatContext): StepCon
     return saveOptions(context);
   }
 
-  if (stepId === 'saved') {
+  if (stepId === 'cravingInput') {
+    return {
+      input: {
+        placeholder: '먹고 싶은 걸 적어줘',
+        onSubmit: (value) => ({
+          nextStep: 'cravingAction',
+          botText: `${value} 먹고 싶은 마음이 올라왔구나.\n어떻게 할래?`,
+          context: {
+            freeLogMoment: value,
+            wantedFood: value,
+          },
+        }),
+      },
+    };
+  }
+
+  if (stepId === 'cravingAction') {
+    return {
+      options: [
+        cravingActionOption('10분 참아볼래'),
+        cravingActionOption('물 마셔볼래'),
+        cravingActionOption('먹으러 갈래'),
+        cravingActionOption('모르겠어!!'),
+      ],
+    };
+  }
+
+  if (stepId === 'cravingResistConfirm') {
     return {
       options: [
         {
-          label: '새 대화 나누기',
+          label: '참기 모드 진행',
           next: () => ({
-            nextStep: 'start',
-            botText: INITIAL_MESSAGE,
-            reset: true,
+            nextStep: 'saved',
+            command: 'startResistTimer',
           }),
         },
+      ],
+    };
+  }
+
+  if (stepId === 'cravingUnsure') {
+    return {
+      options: [
+        cravingSuggestionOption('물 마시기'),
+        cravingSuggestionOption('산책하기'),
+        cravingSuggestionOption('명상하기'),
+      ],
+    };
+  }
+
+  if (stepId === 'cravingSave') {
+    return saveOptions(context);
+  }
+
+  if (stepId === 'saved') {
+    return {
+      options: [
         {
           label: '대화 이어가기',
           next: () => ({
             nextStep: 'continueChat',
             botText: '좋아. 더 남기고 싶은 순간이 있어?',
+          }),
+        },
+        {
+          label: '여기서 끝내기',
+          next: () => ({
+            nextStep: 'saved',
+            command: 'closeChat',
           }),
         },
       ],
@@ -309,7 +371,7 @@ function resistedDifficultyOption(label: string, context: ChatContext): ChatOpti
     label,
     next: () => ({
       nextStep: 'resistedSave',
-      botText: `기록해둘게!\nElen님은 “${getResistedSummary(context)}” 상황에서 흔들리기 쉽지만,\n“${context.resistedTactic ?? '넘기는 행동'}”이 꽤 잘 통하고 있어 🍊`,
+      botText: getResistedMemoryText(context),
       context: { resistedDifficulty: label },
     }),
   };
@@ -390,8 +452,51 @@ function freeLogMoodOption(label: string, context: ChatContext): ChatOption {
     label,
     next: () => ({
       nextStep: 'freeLogSave',
-      botText: `${getFreeLogMoodText(label, context)}\n기록해둘게.`,
+      botText: `${getFreeLogMoodText(label, context)}\n이 마음도 내가 살짝 기억해둘게.`,
       context: { freeLogMood: label },
+    }),
+  };
+}
+
+function cravingActionOption(label: string): ChatOption {
+  return {
+    label,
+    next: () => {
+      if (label === '10분 참아볼래') {
+        return {
+          nextStep: 'cravingResistConfirm',
+          botText: '좋아! 같이 참아보자.',
+        };
+      }
+      if (label === '물 마셔볼래') {
+        return {
+          nextStep: 'cravingSave',
+          botText: '좋아. 일단 물 한 잔으로 마음에 작은 쉼표를 찍어보자 🍊',
+          context: { resistedTactic: label },
+        };
+      }
+      if (label === '먹으러 갈래') {
+        return {
+          nextStep: 'cravingSave',
+          botText: '그래! 대신 조금만 먹을 수 있겠어?',
+          context: { resistedTactic: label },
+        };
+      }
+      return {
+        nextStep: 'cravingUnsure',
+        botText: '괜찮아. 모를 때는 아주 작은 행동 하나만 골라보자.',
+      };
+    },
+  };
+}
+
+function cravingSuggestionOption(label: string): ChatOption {
+  return {
+    label,
+    next: () => ({
+      nextStep: 'cravingSave',
+      botText: `${label}부터 해보자.\n지금 바로 결론 내리지 않아도 괜찮아.`,
+      context: { resistedTactic: label },
     }),
   };
 }
@@ -403,7 +508,7 @@ function saveOptions(context: ChatContext): StepConfig {
         label: SAVE_LABEL,
         next: () => ({
           nextStep: 'saved',
-          botText: getSavedReport(context),
+          botText: getSavedPrompt(context),
         }),
       },
     ],
@@ -432,12 +537,10 @@ function getTacticInsight(tactic: string) {
   return '그 자리에서 벗어나기';
 }
 
-function getResistedSummary(context: ChatContext) {
-  const food = context.wantedFood?.includes('빵') || context.wantedFood?.includes('샌드위치')
-    ? '빵집'
-    : context.wantedFood ?? '먹고 싶은 음식';
-  const reason = context.resistedReason ? getReasonPattern(context.resistedReason) : '갑작스러운 식욕';
-  return `${food} + ${reason}`;
+function getResistedMemoryText(context: ChatContext) {
+  const food = context.wantedFood ?? '먹고 싶었던 마음';
+  const tactic = context.resistedTactic ?? '넘겨본 행동';
+  return `좋아, 이 순간 기억해둘게.\n${food} 먹고 싶었던 마음도,\n${tactic}로 넘겨본 것도 같이 남겨둘게 🍊`;
 }
 
 function getOveratePatternText(value: string) {
@@ -469,9 +572,9 @@ function getOverateMomentInsight(moment: string) {
 
 function getOverateFinalText(feeling: string, context: ChatContext) {
   if (feeling === '죄책감 들어') {
-    return `오늘은 “${context.overateFeeling ?? '좋아하는 음식 많음'} + 만족감 안 옴” 조합이 강했던 날 같아.\n다음엔 처음부터 메뉴 수를 줄이는 게 도움이 될 수도 있어 🍽️`;
+    return '괜찮아, 한 번 먹었다고 끝난 건 아니야.\n오늘 돌아와서 말해준 것만으로도 좋아.';
   }
-  return `오늘은 “${context.overateMoment ?? '멈추기 어려운 순간'}”을 알아차린 날로 기록해둘게.\n한 번 먹었다고 끝난 건 아니야.`;
+  return `오늘은 ${context.overateMoment ?? '멈추기 어려웠던 순간'}을 알아차린 날로 기억해둘게.\n잘했는지 못했는지보다, 돌아와서 말해준 게 중요해.`;
 }
 
 function getRiskEmpathy(value: string) {
@@ -521,19 +624,9 @@ function getFreeLogMoodText(mood: string, context: ChatContext) {
   return `오늘은 “${mood}” 마음이 ${context.freeLogMoment ?? '그 순간'}에 영향을 줬을 수도 있겠다.`;
 }
 
-function getSavedReport(context: ChatContext) {
-  if (context.route === 'resisted') {
-    return `저장했어 🍊\n최근 패턴\n- ${getResistedSummary(context)} 상황에서 흔들림\n- “${context.resistedTactic ?? '넘기는 행동'}” 사용\n- 힘든 정도: ${context.resistedDifficulty ?? '기록됨'}`;
+function getSavedPrompt(context: ChatContext) {
+  if (context.route === 'risk') {
+    return '좋아, 여기까지 같이 봤어.\n이어서 더 얘기할까, 아니면 여기서 마칠까?';
   }
-
-  if (context.route === 'overate') {
-    return `저장했어 🍊\n최근 패턴\n- 종류 많은 음식에서 과식 위험 증가\n- 멈추기 어려운 순간: ${context.overateMoment ?? '기록됨'}\n- 먹은 뒤 감정: ${context.overateAfterFeeling ?? '기록됨'}`;
-  }
-
-  if (context.route === 'freeLog') {
-    return `저장했어 🍊\n최근 패턴\n- ${context.freeLogMood ?? '감정'} 상태에서 식욕 신호 증가\n- 배고팠던 음식: ${context.freeLogMoment ?? '기록됨'}`;
-  }
-
-  return '저장했어 🍊\n오늘은 미리 알아차린 것 자체가 좋은 기록이야.';
+  return '좋아, 여기까지 남겨뒀어.\n이어서 더 얘기할까, 아니면 여기서 마칠까?';
 }
-

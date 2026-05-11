@@ -1,1 +1,33 @@
-/* App-level styles handled in index.css */
+body.chat-mode {
+  height: var(--chat-visual-height, 100dvh);
+  overflow: hidden;
+}
+
+body.chat-mode #root,
+#root:has(.app-chat-shell) {
+  min-height: 100dvh;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-chat-shell {
+  position: fixed;
+  top: var(--chat-visual-top, 0);
+  left: 50%;
+  z-index: 1;
+  width: min(430px, 100dvw);
+  height: var(--chat-visual-height, 100dvh);
+  max-height: var(--chat-visual-height, 100dvh);
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  background: var(--char-bg);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 430px) {
+  .app-chat-shell {
+    width: 100dvw;
+  }
+}

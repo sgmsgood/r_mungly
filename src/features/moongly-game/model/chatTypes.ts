@@ -25,6 +25,11 @@ export type ChatStepId =
   | 'freeLogInput'
   | 'freeLogMood'
   | 'freeLogSave'
+  | 'cravingInput'
+  | 'cravingAction'
+  | 'cravingResistConfirm'
+  | 'cravingUnsure'
+  | 'cravingSave'
   | 'saved'
   | 'continueChat';
 
@@ -63,5 +68,5 @@ export type StepResult = {
   botText?: string;
   context?: ChatContext;
   reset?: boolean;
+  command?: 'closeChat' | 'startResistTimer';
 };
-

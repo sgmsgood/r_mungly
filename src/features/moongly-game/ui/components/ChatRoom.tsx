@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { CHARACTER_CATALOG } from '../../data/characters';
 import { useChatController } from '../../hooks/useChatController';
 import type { ChatMessage } from '../../model/chatTypes';
@@ -9,7 +9,7 @@ export function ChatRoom() {
   const currentCharacter = useGameStore((s) => s.currentCharacter);
   const closeChatRoom = useGameStore((s) => s.closeChatRoom);
   const character = CHARACTER_CATALOG[currentCharacter.character];
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const logRef = useRef<HTMLDivElement | null>(null);
   const {
     choices,
     draft,
@@ -23,9 +23,36 @@ export function ChatRoom() {
     undoableMessageIds,
   } = useChatController();
 
+  const scrollToLatest = useCallback(() => {
+    window.requestAnimationFrame(() => {
+      const log = logRef.current;
+      if (!log) return;
+
+      log.scrollTop = log.scrollHeight;
+    });
+  }, []);
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: 'end' });
-  }, [messages]);
+    scrollToLatest();
+  }, [choices, inputPlaceholder, messages, scrollToLatest]);
+
+  useEffect(() => {
+    const scheduleScrollToLatest = () => {
+      scrollToLatest();
+      window.setTimeout(scrollToLatest, 80);
+      window.setTimeout(scrollToLatest, 260);
+    };
+
+    window.visualViewport?.addEventListener('resize', scheduleScrollToLatest);
+    window.visualViewport?.addEventListener('scroll', scheduleScrollToLatest);
+    window.addEventListener('resize', scheduleScrollToLatest);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', scheduleScrollToLatest);
+      window.visualViewport?.removeEventListener('scroll', scheduleScrollToLatest);
+      window.removeEventListener('resize', scheduleScrollToLatest);
+    };
+  }, [scrollToLatest]);
 
   return (
     <section className="chat-room" aria-label={`${currentCharacter.name}와 대화하기`}>
@@ -42,7 +69,7 @@ export function ChatRoom() {
         <span className="chat-leaf" aria-label="새싹 125">🌱 125</span>
       </header>
 
-      <div className="chat-log">
+      <div className="chat-log" ref={logRef}>
         {messages.map((message) => (
           <ChatBubble
             key={message.id}
@@ -62,7 +89,7 @@ export function ChatRoom() {
           />
         ) : null}
 
-        <div ref={bottomRef} />
+        <div aria-hidden="true" />
       </div>
 
       {inputPlaceholder ? (
@@ -70,6 +97,7 @@ export function ChatRoom() {
           draft={draft}
           placeholder={inputPlaceholder}
           onDraftChange={setDraft}
+          onFocus={scrollToLatest}
           onSubmit={submitDraft}
         />
       ) : null}
@@ -106,13 +134,21 @@ function ChatComposer({
   draft,
   placeholder,
   onDraftChange,
+  onFocus,
   onSubmit,
 }: {
   draft: string;
   placeholder: string;
   onDraftChange: (value: string) => void;
+  onFocus: () => void;
   onSubmit: () => void;
 }) {
+  const handleFocus = () => {
+    onFocus();
+    window.setTimeout(onFocus, 80);
+    window.setTimeout(onFocus, 260);
+  };
+
   return (
     <div className="chat-composer" aria-label="직접 입력">
       <input
@@ -120,6 +156,7 @@ function ChatComposer({
         placeholder={placeholder}
         aria-label={placeholder}
         onChange={(event) => onDraftChange(event.target.value)}
+        onFocus={handleFocus}
         onKeyDown={(event) => {
           if (event.key === 'Enter') onSubmit();
         }}
@@ -178,4 +215,3 @@ function ChatBubble({
     </div>
   );
 }
-
