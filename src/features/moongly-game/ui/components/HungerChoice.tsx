@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { MUNGLY_IMAGES } from '../../data/munglyImages';
+import { CHARACTER_CATALOG } from '../../data/characters';
 import { useGameStore } from '../../model/gameStore';
 import './HungerChoice.css';
 
@@ -53,12 +53,15 @@ function HungerChoiceScreen({ children }: { children: ReactNode }) {
 }
 
 function HungerChoicePet() {
+  const currentCharacter = useGameStore((s) => s.currentCharacter);
+  const character = CHARACTER_CATALOG[currentCharacter.character];
+
   return (
-    <div className="hunger-choice-pet" aria-hidden="true">
+    <div className="hunger-choice-pet">
       <img
-        src={MUNGLY_IMAGES.basic}
+        src={character.images.basic}
         className="hunger-choice-img"
-        alt=""
+        alt={currentCharacter.name}
         style={{ imageRendering: 'pixelated' }}
       />
     </div>

@@ -1,28 +1,52 @@
 import { create } from 'zustand';
+import { CHARACTER_CATALOG } from '../data/characters';
 import { ITEMS } from '../data/gameItems';
 import {
   canPickFood,
+  chooseSceneOption,
   clearMealThought,
   closeMealChoices,
   getNextFoodChoice,
   getNextItemIndex,
   getNextMainMode,
   getNextMealFollowUpChoice,
+  getNextSceneChoice,
   getPreviousFoodChoice,
   getPreviousItemIndex,
   getPreviousMainMode,
   getPreviousMealFollowUpChoice,
+  getPreviousSceneChoice,
   isMealFollowUpShowing,
+  isChoiceScene,
   keepMealChoicesVisible,
   openFoodGrid,
   openFoodGridAfterMeal,
+  openChatRoom,
   pickFoodChoice,
+  finishResistTimer,
   showFoodReaction,
   showFoodChoiceScreen,
   startMainAction,
   startTenMinuteWait,
 } from './gameFlow';
 import type { GameItem, GameMode, GameState } from './gameTypes';
+
+const CHARACTER_CREATED_AT_KEY = 'moongly.character.createdAt';
+
+function getInitialCharacterCreatedAt() {
+  if (typeof window === 'undefined') return new Date().toISOString();
+
+  try {
+    const savedCreatedAt = window.localStorage.getItem(CHARACTER_CREATED_AT_KEY);
+    if (savedCreatedAt) return savedCreatedAt;
+
+    const createdAt = new Date().toISOString();
+    window.localStorage.setItem(CHARACTER_CREATED_AT_KEY, createdAt);
+    return createdAt;
+  } catch {
+    return new Date().toISOString();
+  }
+}
 
 interface DeviceButtonActions {
   onLeft: () => void;
@@ -41,11 +65,22 @@ interface FoodChoiceActions {
   startTenMinuteWait: () => void;
 }
 
+interface ChatActions {
+  openChatRoom: () => void;
+  closeChatRoom: () => void;
+  setChatChoiceCount: (count: number) => void;
+}
+
 interface MealFollowUpActions {
   eatSameFoodAgain: () => void;
   openFoodGridAfterMeal: () => void;
   closeMealChoices: () => void;
   clearMealThought: () => void;
+}
+
+interface SceneChoiceActions {
+  chooseSceneOption: (index: number) => void;
+  finishResistTimer: () => void;
 }
 
 interface ItemChoiceActions {
@@ -61,21 +96,31 @@ type GameActions =
   DeviceButtonActions &
   MainChoiceActions &
   FoodChoiceActions &
+  ChatActions &
   MealFollowUpActions &
+  SceneChoiceActions &
   ItemChoiceActions &
   FoodReactionActions;
 
 export const useGameStore = create<GameState & GameActions>((set, get) => ({
   page: 'game',
   screen: 'main',
+  currentCharacter: {
+    name: CHARACTER_CATALOG.mozzi.name,
+    character: CHARACTER_CATALOG.mozzi.id,
+    createdAt: getInitialCharacterCreatedAt(),
+  },
   mode: 'food',
   selectedIndex: 0,
+  chatChoiceCount: 0,
+  chatSelectToken: 0,
   resistEndsAt: null,
   choiceReadyAt: 0,
   gridReadyAt: 0,
   reaction: null,
-  munglyThought: null,
-  munglyThoughtEndsAt: null,
+  moonglyState: 'waiting',
+  moonglyThought: null,
+  moonglyThoughtEndsAt: null,
   lastFoodIndex: null,
 
   getItemsForCurrentMode: () => ITEMS[get().mode],
@@ -96,9 +141,23 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       set({
         mode: getPreviousMainMode(mode),
         selectedIndex: 0,
-        munglyThought: null,
-        munglyThoughtEndsAt: null,
+        moonglyState: 'waiting',
+        moonglyThought: null,
+        moonglyThoughtEndsAt: null,
       });
+      return;
+    }
+
+    if (screen === 'chat') {
+      if (state.chatChoiceCount <= 0) return;
+      set({
+        selectedIndex: getPreviousItemIndex(selectedIndex, state.chatChoiceCount),
+      });
+      return;
+    }
+
+    if (isChoiceScene(state)) {
+      set({ selectedIndex: getPreviousSceneChoice(state) });
       return;
     }
 
@@ -108,7 +167,6 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
 
     if (screen === 'resistTimer') {
-      set({ screen: 'main', selectedIndex: 0 });
       return;
     }
 
@@ -132,9 +190,23 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       set({
         mode: getNextMainMode(mode),
         selectedIndex: 0,
-        munglyThought: null,
-        munglyThoughtEndsAt: null,
+        moonglyState: 'waiting',
+        moonglyThought: null,
+        moonglyThoughtEndsAt: null,
       });
+      return;
+    }
+
+    if (screen === 'chat') {
+      if (state.chatChoiceCount <= 0) return;
+      set({
+        selectedIndex: getNextItemIndex(selectedIndex, state.chatChoiceCount),
+      });
+      return;
+    }
+
+    if (isChoiceScene(state)) {
+      set({ selectedIndex: getNextSceneChoice(state) });
       return;
     }
 
@@ -144,7 +216,6 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
 
     if (screen === 'resistTimer') {
-      set({ screen: 'main', selectedIndex: 0 });
       return;
     }
 
@@ -172,6 +243,17 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       return;
     }
 
+    if (state.screen === 'chat') {
+      if (state.chatChoiceCount <= 0) return;
+      set({ chatSelectToken: state.chatSelectToken + 1 });
+      return;
+    }
+
+    if (isChoiceScene(state)) {
+      get().chooseSceneOption(state.selectedIndex);
+      return;
+    }
+
     if (state.screen === 'hungerChoice') {
       const patch = pickFoodChoice(state, now);
       if (patch) set(patch);
@@ -179,7 +261,6 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
 
     if (state.screen === 'resistTimer') {
-      set({ screen: 'main', selectedIndex: 0 });
       return;
     }
 
@@ -213,6 +294,19 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
 
   showFoodChoiceScreen: () => set(showFoodChoiceScreen(Date.now())),
+  openChatRoom: () => set(openChatRoom()),
+  closeChatRoom: () => set({
+    screen: 'main',
+    selectedIndex: 0,
+    chatChoiceCount: 0,
+    moonglyState: 'waiting',
+    moonglyThought: null,
+    moonglyThoughtEndsAt: null,
+  }),
+  setChatChoiceCount: (count) => set({
+    chatChoiceCount: count,
+    selectedIndex: 0,
+  }),
   openFoodGrid: () => {
     const patch = openFoodGrid(get(), Date.now());
     if (patch) set(patch);
@@ -232,6 +326,11 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
   openFoodGridAfterMeal: () => set(openFoodGridAfterMeal(Date.now())),
   closeMealChoices: () => set(closeMealChoices()),
+  chooseSceneOption: (index) => {
+    const patch = chooseSceneOption(get(), index, Date.now());
+    if (patch) set(patch);
+  },
+  finishResistTimer: () => set(finishResistTimer()),
   clearMealThought: () => {
     const patch = clearMealThought(get(), Date.now());
     if (patch) set(patch);
@@ -239,8 +338,9 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   pickMode: (mode) => set({
     mode,
     selectedIndex: 0,
-    munglyThought: null,
-    munglyThoughtEndsAt: null,
+    moonglyState: 'waiting',
+    moonglyThought: null,
+    moonglyThoughtEndsAt: null,
   }),
   pickItem: (index) => set({ selectedIndex: index }),
   hideFoodReaction: () => set({ reaction: null }),

@@ -1,5 +1,5 @@
 import { useRef, type ReactNode } from 'react';
-import { useGameStore } from '../../../features/mungly-game/model/gameStore';
+import { useGameStore } from '../../../features/moongly-game/model/gameStore';
 import './DeviceButtons.css';
 
 export function DeviceButtons() {

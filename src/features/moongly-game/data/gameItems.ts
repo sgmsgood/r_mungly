@@ -5,6 +5,7 @@ export const ITEMS: Record<GameMode, GameItem[]> = {
     { id: 'tteok', name: '떡볶이', emoji: '🌶️', kcal: '+280 kcal', assetPath: '/assets/png/foods/tteok.png' },
     { id: 'pizza', name: '피자 1조각', emoji: '🍕', kcal: '+450 kcal', assetPath: '/assets/png/foods/pizza.png' },
     { id: 'donut', name: '도너츠', emoji: '🍩', kcal: '+300 kcal', assetPath: '/assets/png/foods/donut.png' },
+    { id: 'pork', name: '삼겹살', emoji: '🍩', kcal: '+300 kcal', assetPath: '/assets/png/foods/pork.png' },
     { id: 'egg_tart', name: '에그타르트', emoji: '🥧', kcal: '+225 kcal', assetPath: '/assets/png/foods/egg_tart.png' },
     { id: 'burger', name: '햄버거', emoji: '🍔', kcal: '+520 kcal' },
     { id: 'cake', name: '케이크', emoji: '🍰', kcal: '+360 kcal' },

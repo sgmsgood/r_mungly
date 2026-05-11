@@ -1,6 +1,9 @@
+export { ChatRoom } from './ChatRoom';
+export { CheckInScene } from './CheckInScene';
 export { HungerChoice } from './HungerChoice';
 export { ItemGrid } from './ItemGrid';
 export { ModeSelector } from './ModeSelector';
 export { PixelRoom } from './PixelRoom';
 export { ResistTimer } from './ResistTimer';
+export { SceneChoices } from './SceneChoices';
 export { StatusBar } from './StatusBar';

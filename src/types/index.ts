@@ -1,8 +1,13 @@
 export type {
   AppPage,
+  CharacterDefinition,
+  CharacterId,
+  CharacterImages,
   GameItem,
   GameMode,
   GameScreen,
   GameState,
+  MoonglyState,
   Reaction,
-} from '../features/mungly-game/model/gameTypes';
+  UserCharacter,
+} from '../features/moongly-game/model/gameTypes';

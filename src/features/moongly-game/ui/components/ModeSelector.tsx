@@ -10,10 +10,8 @@ interface ModeChoice {
 }
 
 const MODES: ModeChoice[] = [
-  { id: 'food', emoji: '🍔', label: '배고파' },
-  { id: 'exercise', emoji: '🔥', label: '태우기' },
-  { id: 'shower', emoji: '🛁', label: '씻기' },
-  { id: 'rest', emoji: '💤', label: '피곤해' },
+  { id: 'food', emoji: '🍔', label: '대신 먹어줘' },
+  { id: 'rest', emoji: '💬', label: '대화하자' },
 ];
 
 const VISIBLE_MODES = MODES.filter((mode) => mode.id === 'food' || mode.id === 'rest');
@@ -31,14 +29,15 @@ const MEAL_FOLLOW_UP_CHOICES: MealFollowUpChoice[] = [
 export function ModeSelector() {
   const mode = useGameStore((s) => s.mode);
   const selectedIndex = useGameStore((s) => s.selectedIndex);
-  const munglyThought = useGameStore((s) => s.munglyThought);
+  const moonglyThought = useGameStore((s) => s.moonglyThought);
   const pickMode = useGameStore((s) => s.pickMode);
   const pickItem = useGameStore((s) => s.pickItem);
+  const openChatRoom = useGameStore((s) => s.openChatRoom);
   const eatSameFoodAgain = useGameStore((s) => s.eatSameFoodAgain);
   const openFoodGridAfterMeal = useGameStore((s) => s.openFoodGridAfterMeal);
   const showFoodChoiceScreen = useGameStore((s) => s.showFoodChoiceScreen);
 
-  if (munglyThought === MEAL_THOUGHT) {
+  if (moonglyThought === MEAL_THOUGHT) {
     return (
       <MealFollowUpList
         selectedIndex={selectedIndex}
@@ -60,6 +59,10 @@ export function ModeSelector() {
       onPickMode={(nextMode) => {
         if (nextMode === 'food') {
           showFoodChoiceScreen();
+          return;
+        }
+        if (nextMode === 'rest') {
+          openChatRoom();
           return;
         }
         pickMode(nextMode);

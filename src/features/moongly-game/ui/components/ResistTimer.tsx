@@ -11,7 +11,8 @@ function formatLeft(ms: number) {
 
 export function ResistTimer() {
   const resistEndsAt = useGameStore((s) => s.resistEndsAt);
-  const [now, setNow] = useState(resistEndsAt ? resistEndsAt - 10 * 60 * 1000 : 0);
+  const finishResistTimer = useGameStore((s) => s.finishResistTimer);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000);
@@ -20,6 +21,12 @@ export function ResistTimer() {
 
   const remaining = resistEndsAt ? resistEndsAt - now : 0;
   const done = remaining <= 0;
+
+  useEffect(() => {
+    if (!done) return;
+    const id = window.setTimeout(finishResistTimer, 250);
+    return () => window.clearTimeout(id);
+  }, [done, finishResistTimer]);
 
   return (
     <ResistingRoom

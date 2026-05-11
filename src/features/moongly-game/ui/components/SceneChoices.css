@@ -1,0 +1,103 @@
+.scene-choices {
+  display: grid;
+  gap: 9px;
+  padding: 9px 12px 18px;
+  flex-shrink: 0;
+}
+
+.scene-choices-1 {
+  grid-template-columns: 1fr;
+}
+
+.scene-choices-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.scene-choice-btn {
+  --choice-bg: #fffdf8;
+  --choice-border: #d8c7b8;
+  --choice-shadow: #eadfd6;
+  --choice-text: #4f3e36;
+  --choice-selected-bg: #ede9fe;
+  --choice-selected-border: #a78bfa;
+  --choice-selected-shadow: #ddd6fe;
+  --choice-selected-text: #5b45a3;
+  --pixel-bubble-shape: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 3px,
+    calc(100% - 4px) 3px,
+    calc(100% - 4px) 7px,
+    100% 7px,
+    100% calc(100% - 7px),
+    calc(100% - 4px) calc(100% - 7px),
+    calc(100% - 4px) calc(100% - 3px),
+    calc(100% - 8px) calc(100% - 3px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 3px),
+    4px calc(100% - 3px),
+    4px calc(100% - 7px),
+    0 calc(100% - 7px),
+    0 7px,
+    4px 7px,
+    4px 3px,
+    8px 3px
+  );
+  position: relative;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: transform 60ms ease;
+}
+
+.scene-choices-1 .scene-choice-btn {
+  min-height: 54px;
+}
+
+.scene-choice-btn::before,
+.scene-choice-btn::after {
+  content: '';
+  position: absolute;
+  clip-path: var(--pixel-bubble-shape);
+  pointer-events: none;
+}
+
+.scene-choice-btn::before {
+  inset: -4px -5px;
+  background: var(--choice-border);
+  box-shadow: 2px 7px 0 var(--choice-shadow);
+}
+
+.scene-choice-btn::after {
+  inset: 0;
+  background: var(--choice-bg);
+}
+
+.scene-choice-btn.selected {
+  --choice-bg: var(--choice-selected-bg);
+  --choice-border: var(--choice-selected-border);
+  --choice-shadow: var(--choice-selected-shadow);
+  --choice-text: var(--choice-selected-text);
+  transform: translateY(-2px);
+}
+
+.scene-choice-btn:active {
+  transform: translateY(2px);
+}
+
+.scene-choice-label {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  color: var(--choice-text);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.35;
+  text-align: center;
+  word-break: keep-all;
+}

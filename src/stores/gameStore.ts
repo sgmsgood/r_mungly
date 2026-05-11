@@ -1,1 +1,1 @@
-export { ITEMS, useGameStore } from '../features/mungly-game';
+export { ITEMS, useGameStore } from '../features/moongly-game';

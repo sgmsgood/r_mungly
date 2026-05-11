@@ -3,11 +3,14 @@ import { SettingsScreen } from '../../settings';
 import { useGameStore } from '../model/gameStore';
 import type { GameScreen as GameScreenName } from '../model/gameTypes';
 import {
+  ChatRoom,
+  CheckInScene,
   HungerChoice,
   ItemGrid,
   ModeSelector,
   PixelRoom,
   ResistTimer,
+  SceneChoices,
   StatusBar,
 } from './components';
 import './GameScreen.css';
@@ -46,10 +49,27 @@ function CurrentScreen({ screen }: { screen: GameScreenName }) {
   if (screen === 'hungerChoice') return <HungerChoice />;
   if (screen === 'grid') return <ItemGrid />;
   if (screen === 'resistTimer') return <ResistTimer />;
+  if (screen === 'chat') return <ChatRoom />;
+  if (isCheckInScreen(screen)) return <CheckInScene screen={screen} />;
   return null;
 }
 
 function GameFooter({ screen }: { screen: GameScreenName }) {
+  if (isCheckInScreen(screen)) return <SceneChoices screen={screen} />;
   if (screen !== 'main') return null;
   return <ModeSelector />;
+}
+
+function isCheckInScreen(screen: GameScreenName): screen is Extract<
+  GameScreenName,
+  'timerDone' | 'urgeCheck' | 'urgeStrong' | 'urgeLess' | 'urgeOkay' | 'resultLog'
+> {
+  return (
+    screen === 'timerDone' ||
+    screen === 'urgeCheck' ||
+    screen === 'urgeStrong' ||
+    screen === 'urgeLess' ||
+    screen === 'urgeOkay' ||
+    screen === 'resultLog'
+  );
 }

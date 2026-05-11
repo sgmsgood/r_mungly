@@ -1,0 +1,234 @@
+.chat-room {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0 44px, transparent 44px),
+    var(--char-bg);
+  color: #5f2f20;
+  overflow: hidden;
+}
+
+.chat-header {
+  height: 46px;
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  flex-shrink: 0;
+}
+
+.chat-header strong {
+  font-size: 15px;
+  font-weight: 900;
+  text-align: center;
+  color: #5a2a1d;
+}
+
+.chat-back {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #8a604e;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.chat-leaf {
+  font-size: 12px;
+  font-weight: 900;
+  color: #7b4d38;
+  white-space: nowrap;
+}
+
+.chat-log {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  overflow-y: auto;
+}
+
+.chat-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.chat-row-moongly {
+  justify-content: flex-start;
+}
+
+.chat-row-user {
+  justify-content: flex-end;
+}
+
+.chat-avatar {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 0 rgba(159, 121, 94, 0.14));
+}
+
+.chat-bubble {
+  max-width: 188px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.42;
+  white-space: pre-line;
+}
+
+.chat-bubble-moongly {
+  position: relative;
+  background: #fff9f6;
+  border: 2px solid #ffbeb8;
+  box-shadow: 3px 3px 0 #ffe1dc;
+}
+
+.chat-bubble-moongly::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 17px;
+  width: 9px;
+  height: 9px;
+  background: #fff9f6;
+  border-left: 2px solid #ffbeb8;
+  border-bottom: 2px solid #ffbeb8;
+  transform: rotate(45deg);
+}
+
+.chat-bubble-user {
+  min-height: 36px;
+  background: #f4efff;
+  border: 2px solid #c4b5fd;
+  box-shadow: 2px 2px 0 #e4ddff;
+  color: #5a2a1d;
+}
+
+.chat-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 6px;
+}
+
+.chat-meta-user {
+  justify-content: flex-end;
+}
+
+.chat-time {
+  padding-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #c7bcb6;
+  white-space: nowrap;
+}
+
+.chat-meta .chat-time {
+  padding-bottom: 0;
+}
+
+.chat-undo {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #d8c7b8;
+  border-radius: 0;
+  background: rgba(255, 253, 248, 0.92);
+  box-shadow: 0 2px 0 #f2e8de;
+  color: #8a604e;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.chat-undo:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #f2e8de;
+}
+
+.chat-choice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 7px;
+  margin-left: 56px;
+  padding: 1px 0 4px;
+}
+
+.chat-choice {
+  min-height: 31px;
+  max-width: 126px;
+  padding: 6px 10px;
+  background: rgba(255, 253, 248, 0.88);
+  border: 2px solid #e9d6c7;
+  border-radius: 0;
+  box-shadow: 0 2px 0 #f2e8de;
+  color: #6a3a29;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.chat-choice.selected {
+  background: #fff1ef;
+  border-color: #ff7a6b;
+  box-shadow: 0 2px 0 #ffd8d2;
+  color: #f05245;
+}
+
+.chat-composer {
+  display: grid;
+  grid-template-columns: 1fr 68px;
+  gap: 8px;
+  padding: 10px 14px 14px;
+  background: rgba(255, 246, 237, 0.88);
+  border-top: 1px solid rgba(234, 223, 214, 0.84);
+  flex-shrink: 0;
+}
+
+.chat-composer input {
+  min-width: 0;
+  height: 42px;
+  padding: 0 13px;
+  border: 2px solid #eadfd6;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #5f2f20;
+  font-size: 13px;
+  font-weight: 800;
+  outline: 0;
+}
+
+.chat-composer input::placeholder {
+  color: #c7bcb6;
+}
+
+.chat-composer button {
+  height: 42px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--p400);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--p500);
+}

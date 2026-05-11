@@ -1,4 +1,4 @@
-import { GameScreen } from './features/mungly-game';
+import { GameScreen } from './features/moongly-game';
 import { DeviceButtons, DeviceFrame } from './shared/ui/device';
 import './App.css';
 

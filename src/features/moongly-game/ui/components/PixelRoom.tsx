@@ -1,8 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
-import { MUNGLY_IMAGES } from '../../data/munglyImages';
-import { MEAL_THOUGHT } from '../../model/gameFlow';
+import { CHARACTER_CATALOG } from '../../data/characters';
 import { useGameStore } from '../../model/gameStore';
-import type { Reaction } from '../../model/gameTypes';
+import type { CharacterId, MoonglyState, Reaction, UserCharacter } from '../../model/gameTypes';
 import { ItemReaction } from './ItemReaction';
 import './PixelRoom.css';
 
@@ -18,33 +17,34 @@ export function PixelRoom({
   mantraText = null,
 }: Props) {
   const reaction = useGameStore((s) => s.reaction);
-  const munglyThought = useGameStore((s) => s.munglyThought);
-  const munglyThoughtEndsAt = useGameStore((s) => s.munglyThoughtEndsAt);
+  const currentCharacter = useGameStore((s) => s.currentCharacter);
+  const moonglyState = useGameStore((s) => s.moonglyState);
+  const moonglyThought = useGameStore((s) => s.moonglyThought);
+  const moonglyThoughtEndsAt = useGameStore((s) => s.moonglyThoughtEndsAt);
   const clearMealThought = useGameStore((s) => s.clearMealThought);
   const visibleRoomThought = thoughtText === undefined
-    ? munglyThought ?? '어떤 상태야?'
+    ? moonglyThought ?? '우리 뭐할까?'
     : thoughtText;
-  const munglyImage = munglyThought === MEAL_THOUGHT
-    ? MUNGLY_IMAGES.happy
-    : MUNGLY_IMAGES.basic;
+  const moonglyImage = getCharacterImage(currentCharacter.character, moonglyState);
 
   useEffect(() => {
-    if (!munglyThoughtEndsAt) return;
-    const delay = Math.max(0, munglyThoughtEndsAt - Date.now());
+    if (!moonglyThoughtEndsAt) return;
+    const delay = Math.max(0, moonglyThoughtEndsAt - Date.now());
     const timerId = window.setTimeout(clearMealThought, delay);
     return () => window.clearTimeout(timerId);
-  }, [clearMealThought, munglyThoughtEndsAt]);
+  }, [clearMealThought, moonglyThoughtEndsAt]);
 
   return (
     <Room>
       <RoomWall />
       <RoomFloor />
-      <MunglyStage
+      <MoonglyStage
         thoughtText={visibleRoomThought}
         timerText={timerText}
         mantraText={mantraText}
         isReactionShowing={Boolean(reaction)}
-        imageSrc={munglyImage}
+        imageSrc={moonglyImage}
+        character={currentCharacter}
       />
       <ReactionLayer reaction={reaction} />
     </Room>
@@ -53,6 +53,13 @@ export function PixelRoom({
 
 function Room({ children }: { children: ReactNode }) {
   return <div className="pixel-room">{children}</div>;
+}
+
+function getCharacterImage(character: CharacterId, moonglyState: MoonglyState) {
+  const images = CHARACTER_CATALOG[character].images;
+  if (moonglyState === 'happy') return images.happy;
+  if (moonglyState === 'encouraging') return images.enduring;
+  return images.basic;
 }
 
 function RoomWall() {
@@ -110,18 +117,20 @@ function RoomCushion() {
   );
 }
 
-interface MunglyStageProps extends Props {
+interface MoonglyStageProps extends Props {
   isReactionShowing: boolean;
   imageSrc: string;
+  character: UserCharacter;
 }
 
-function MunglyStage({
+function MoonglyStage({
   thoughtText,
   timerText,
   mantraText,
   isReactionShowing,
   imageSrc,
-}: MunglyStageProps) {
+  character,
+}: MoonglyStageProps) {
   const visibleThoughtText = timerText || isReactionShowing ? null : thoughtText;
 
   return (
@@ -129,7 +138,7 @@ function MunglyStage({
       <MantraBubble text={mantraText} />
       <TimerBubble text={timerText} />
       <ThoughtBubble text={visibleThoughtText} />
-      <MunglyCharacter imageSrc={imageSrc} />
+      <MoonglyCharacter imageSrc={imageSrc} character={character} />
     </div>
   );
 }
@@ -163,16 +172,22 @@ function ThoughtBubble({ text }: { text?: string | null }) {
   );
 }
 
-function MunglyCharacter({ imageSrc }: { imageSrc: string }) {
+function MoonglyCharacter({
+  imageSrc,
+  character,
+}: {
+  imageSrc: string;
+  character: UserCharacter;
+}) {
   return (
     <>
       <img
         src={imageSrc}
         className="character-img"
-        alt="모찌"
+        alt={character.name}
         style={{ imageRendering: 'pixelated' }}
       />
-      <span className="character-name">모찌</span>
+      <span className="character-name">{character.name}</span>
     </>
   );
 }
