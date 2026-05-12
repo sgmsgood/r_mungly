@@ -19,6 +19,12 @@
   align-items: center;
 }
 
+.status-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
 .status-heart {
   width: 8px;
   height: 8px;
@@ -28,4 +34,24 @@
 
 .status-heart.filled {
   background: var(--p400);
+}
+
+.status-help-button {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--p400);
+  border-radius: 0;
+  background: #fffafd;
+  color: var(--p500);
+  box-shadow: 2px 2px 0 var(--p300);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.status-help-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--p300);
 }

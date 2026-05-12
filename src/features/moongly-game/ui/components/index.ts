@@ -1,5 +1,6 @@
 export { ChatRoom } from './ChatRoom';
 export { CheckInScene } from './CheckInScene';
+export { HelpGuideScreen } from './HelpGuideScreen';
 export { HungerChoice } from './HungerChoice';
 export { ItemGrid } from './ItemGrid';
 export { ModeSelector } from './ModeSelector';

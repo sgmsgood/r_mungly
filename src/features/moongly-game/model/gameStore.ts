@@ -71,6 +71,11 @@ interface ChatActions {
   setChatChoiceCount: (count: number) => void;
 }
 
+interface PageActions {
+  openHelpGuide: () => void;
+  closePage: () => void;
+}
+
 interface MealFollowUpActions {
   eatSameFoodAgain: () => void;
   openFoodGridAfterMeal: () => void;
@@ -97,6 +102,7 @@ type GameActions =
   MainChoiceActions &
   FoodChoiceActions &
   ChatActions &
+  PageActions &
   MealFollowUpActions &
   SceneChoiceActions &
   ItemChoiceActions &
@@ -275,7 +281,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     const state = get();
     const { page, screen } = state;
 
-    if (page === 'settings') {
+    if (page === 'settings' || page === 'help') {
       set({ page: 'game' });
       return;
     }
@@ -294,6 +300,8 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   },
 
   showFoodChoiceScreen: () => set(showFoodChoiceScreen(Date.now())),
+  openHelpGuide: () => set({ page: 'help' }),
+  closePage: () => set({ page: 'game' }),
   openChatRoom: () => set(openChatRoom()),
   closeChatRoom: () => set({
     screen: 'main',

@@ -5,6 +5,7 @@ import type { GameScreen as GameScreenName } from '../model/gameTypes';
 import {
   ChatRoom,
   CheckInScene,
+  HelpGuideScreen,
   HungerChoice,
   ItemGrid,
   ModeSelector,
@@ -23,9 +24,13 @@ export function GameScreen() {
     return <SettingsScreen />;
   }
 
+  if (page === 'help') {
+    return <HelpGuideScreen />;
+  }
+
   return (
     <GameShell>
-      {screen === 'chat' ? null : <StatusBar />}
+      {screen === 'chat' ? null : <StatusBar showHelpButton={screen === 'main'} />}
       <GameContent screen={screen} />
       <GameFooter screen={screen} />
     </GameShell>

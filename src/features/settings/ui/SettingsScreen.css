@@ -5,17 +5,46 @@
   border: 2px solid var(--p300);
   display: flex;
   flex-direction: column;
-  padding-top: 18px;
   overflow: hidden;
 }
 
+.settings-header {
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  padding: 6px 10px 4px;
+  flex-shrink: 0;
+}
+
 .settings-title {
+  grid-column: 2;
   font-size: 14px;
   font-weight: 900;
   color: var(--text-primary);
   text-align: center;
-  padding-bottom: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
+}
+
+.settings-close-button {
+  grid-column: 3;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #d8c7b8;
+  border-radius: 0;
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: 2px 2px 0 #f2e8de;
+  color: #8a604e;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.settings-close-button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #f2e8de;
 }
 
 .settings-list {
@@ -47,6 +76,15 @@
   box-shadow: 0 1px 0 var(--p200);
 }
 
+.settings-info-item {
+  cursor: default;
+}
+
+.settings-info-item:active {
+  transform: none;
+  box-shadow: 0 3px 0 var(--p200);
+}
+
 .settings-icon-box {
   width: 22px;
   height: 22px;
@@ -64,6 +102,13 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.settings-version {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .settings-arrow {

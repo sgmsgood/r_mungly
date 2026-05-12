@@ -1,4 +1,4 @@
-export type AppPage = 'game' | 'settings';
+export type AppPage = 'game' | 'settings' | 'help';
 export type GameScreen =
   | 'main'
   | 'hungerChoice'

@@ -1,14 +1,29 @@
 import type { ReactNode } from 'react';
+import { useGameStore } from '../../model/gameStore';
 import './StatusBar.css';
 
 const HEARTS = [0, 1, 2, 3, 4];
 const FILLED_HEART_COUNT = 3;
 
-export function StatusBar() {
+export function StatusBar({ showHelpButton = false }: { showHelpButton?: boolean }) {
+  const openHelpGuide = useGameStore((s) => s.openHelpGuide);
+
   return (
     <StatusBarFrame>
       <StatusLevel />
-      <StatusHearts />
+      <div className="status-actions">
+        <StatusHearts />
+        {showHelpButton ? (
+          <button
+            className="status-help-button"
+            type="button"
+            aria-label="조작 설명서 열기"
+            onClick={openHelpGuide}
+          >
+            ?
+          </button>
+        ) : null}
+      </div>
     </StatusBarFrame>
   );
 }
