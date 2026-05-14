@@ -54,6 +54,7 @@ function FoodGridCell({
       onClick={onClick}
     >
       <FoodIcon item={item} />
+      <span className="grid-name">{item.name}</span>
       <span className="grid-kcal">{item.kcal}</span>
     </button>
   );
