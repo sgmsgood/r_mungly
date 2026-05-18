@@ -30,7 +30,9 @@ export function GameScreen() {
 
   return (
     <GameShell>
-      {screen === 'chat' ? null : <StatusBar showHelpButton={screen === 'main'} />}
+      {screen === 'chat' ? null : (
+        <StatusBar showHelpButton={screen === 'main' || screen === 'resistTimer'} />
+      )}
       <GameContent screen={screen} />
       <GameFooter screen={screen} />
     </GameShell>
@@ -67,7 +69,15 @@ function GameFooter({ screen }: { screen: GameScreenName }) {
 
 function isCheckInScreen(screen: GameScreenName): screen is Extract<
   GameScreenName,
-  'timerDone' | 'urgeCheck' | 'urgeStrong' | 'urgeLess' | 'urgeOkay' | 'resultLog'
+  | 'timerDone'
+  | 'urgeCheck'
+  | 'urgeStrong'
+  | 'urgeLess'
+  | 'urgeOkay'
+  | 'praiseDone'
+  | 'waterDone'
+  | 'walkDone'
+  | 'resultLog'
 > {
   return (
     screen === 'timerDone' ||
@@ -75,6 +85,9 @@ function isCheckInScreen(screen: GameScreenName): screen is Extract<
     screen === 'urgeStrong' ||
     screen === 'urgeLess' ||
     screen === 'urgeOkay' ||
+    screen === 'praiseDone' ||
+    screen === 'waterDone' ||
+    screen === 'walkDone' ||
     screen === 'resultLog'
   );
 }

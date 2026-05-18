@@ -294,7 +294,15 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     if (screen === 'main') {
       set({ page: 'settings' });
     } else {
-      set({ screen: 'main' });
+      set({
+        screen: 'main',
+        selectedIndex: 0,
+        resistEndsAt: null,
+        reaction: null,
+        moonglyState: 'waiting',
+        moonglyThought: null,
+        moonglyThoughtEndsAt: null,
+      });
     }
     if (navigator.vibrate) navigator.vibrate(50);
   },

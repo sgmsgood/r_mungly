@@ -10,6 +10,9 @@ export type GameScreen =
   | 'urgeStrong'
   | 'urgeLess'
   | 'urgeOkay'
+  | 'praiseDone'
+  | 'waterDone'
+  | 'walkDone'
   | 'resultLog';
 export type GameMode = 'food' | 'exercise' | 'shower' | 'rest';
 export type CharacterId = 'mozzi';

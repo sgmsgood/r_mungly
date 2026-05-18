@@ -91,6 +91,7 @@
 }
 
 .mode-btn-food {
+  grid-column: 1 / -1;
   --choice-bg: #fff1ef;
   --choice-border: #ffb3a8;
   --choice-shadow: #ffd8d2;

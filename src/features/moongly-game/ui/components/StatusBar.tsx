@@ -10,9 +10,9 @@ export function StatusBar({ showHelpButton = false }: { showHelpButton?: boolean
 
   return (
     <StatusBarFrame>
-      <StatusLevel />
+      {/* <StatusLevel /> */}
       <div className="status-actions">
-        <StatusHearts />
+        {/* <StatusHearts /> */}
         {showHelpButton ? (
           <button
             className="status-help-button"

@@ -4,7 +4,15 @@ import './SceneChoices.css';
 
 type ChoiceScreen = Extract<
   GameScreenName,
-  'timerDone' | 'urgeCheck' | 'urgeStrong' | 'urgeLess' | 'urgeOkay' | 'resultLog'
+  | 'timerDone'
+  | 'urgeCheck'
+  | 'urgeStrong'
+  | 'urgeLess'
+  | 'urgeOkay'
+  | 'praiseDone'
+  | 'waterDone'
+  | 'walkDone'
+  | 'resultLog'
 >;
 
 interface SceneChoice {
@@ -29,11 +37,23 @@ const SCENE_CHOICES: Record<ChoiceScreen, SceneChoice[]> = {
   urgeLess: [
     { id: 'delay', label: '5분만 더' },
     { id: 'water', label: '물 한 잔' },
-    { id: 'feed', label: '뭉글리 먹이기' },
+    { id: 'walk', label: '산책하기' },
   ],
   urgeOkay: [
-    { id: 'record', label: '기록 남기기' },
+    // { id: 'record', label: '기록 남기기' },
     { id: 'praise', label: '칭찬 받기' },
+    { id: 'home', label: '홈으로' },
+  ],
+  praiseDone: [
+    { id: 'confirm', label: '확인' },
+  ],
+  waterDone: [
+    { id: 'delay', label: '5분만 더' },
+    { id: 'substitute', label: '뭉글리 먹이기' },
+    { id: 'home', label: '홈으로' },
+  ],
+  walkDone: [
+    { id: 'substitute', label: '뭉글리 먹이기' },
     { id: 'home', label: '홈으로' },
   ],
   resultLog: [

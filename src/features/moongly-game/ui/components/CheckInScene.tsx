@@ -1,9 +1,19 @@
+import { useEffect } from 'react';
 import type { GameScreen as GameScreenName } from '../../model/gameTypes';
+import { useGameStore } from '../../model/gameStore';
 import { PixelRoom } from './PixelRoom';
 
 type CheckInScreen = Extract<
   GameScreenName,
-  'timerDone' | 'urgeCheck' | 'urgeStrong' | 'urgeLess' | 'urgeOkay' | 'resultLog'
+  | 'timerDone'
+  | 'urgeCheck'
+  | 'urgeStrong'
+  | 'urgeLess'
+  | 'urgeOkay'
+  | 'praiseDone'
+  | 'waterDone'
+  | 'walkDone'
+  | 'resultLog'
 >;
 
 const CHECK_IN_SCENES: Record<CheckInScreen, { thoughtText: string }> = {
@@ -22,13 +32,29 @@ const CHECK_IN_SCENES: Record<CheckInScreen, { thoughtText: string }> = {
   urgeOkay: {
     thoughtText: '정말 대단해!\n잘 넘겼어 🥰',
   },
+  praiseDone: {
+    thoughtText: '와, 진짜 잘했어!\n한 번 넘긴 너 멋져 ✨',
+  },
+  waterDone: {
+    thoughtText: '좋아, 물 한 잔으로\n한 번 넘겨봤어 💧\n이제 어때?',
+  },
+  walkDone: {
+    thoughtText: '좋은 선택이야.\n걸으면 마음이 환기돼서\n식욕도 잦아들 수 있어.',
+  },
   resultLog: {
-    thoughtText: '선택 남겼어!\n다음에도 같이 보자 💜',
+    thoughtText: '먹는 선택도 괜찮아.\n대신 배부르면 멈추기, 약속!',
   },
 };
 
 export function CheckInScene({ screen }: { screen: CheckInScreen }) {
   const scene = CHECK_IN_SCENES[screen];
+  const chooseSceneOption = useGameStore((s) => s.chooseSceneOption);
+
+  useEffect(() => {
+    if (screen !== 'praiseDone') return;
+    const timerId = window.setTimeout(() => chooseSceneOption(0), 10 * 1000);
+    return () => window.clearTimeout(timerId);
+  }, [chooseSceneOption, screen]);
 
   return <PixelRoom thoughtText={scene.thoughtText} />;
 }

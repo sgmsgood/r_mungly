@@ -4,9 +4,8 @@ const INPUT_LOCK_MS = 300;
 const FOOD_REACTION_LIFETIME_MS = 1000;
 const MEAL_THOUGHT_DURATION_MS = 5000;
 const TEN_MINUTES_MS = 10 * 60 * 1000;
-const FIVE_MINUTES_MS = 5 * 60 * 1000;
-const RESIST_DURATION_MS = import.meta.env.DEV ? 10 * 1000 : TEN_MINUTES_MS;
-const SHORT_RESIST_DURATION_MS = import.meta.env.DEV ? 5 * 1000 : FIVE_MINUTES_MS;
+const RESIST_DURATION_MS = TEN_MINUTES_MS;
+const SHORT_RESIST_DURATION_MS = TEN_MINUTES_MS;
 const FOOD_CHOICE_COUNT = 2;
 const MEAL_FOLLOW_UP_COUNT = 2;
 const TIMER_DONE_CHOICE_COUNT = 1;
@@ -53,11 +52,14 @@ export function getNextMealFollowUpChoice(index: number) {
 
 export function getSceneChoiceCount(state: GameState) {
   if (state.screen === 'timerDone') return TIMER_DONE_CHOICE_COUNT;
+  if (state.screen === 'praiseDone') return TIMER_DONE_CHOICE_COUNT;
   if (state.screen === 'urgeCheck') return URGE_CHECK_CHOICE_COUNT;
   if (
     state.screen === 'urgeStrong' ||
     state.screen === 'urgeLess' ||
-    state.screen === 'urgeOkay'
+    state.screen === 'urgeOkay' ||
+    state.screen === 'waterDone' ||
+    state.screen === 'walkDone'
   ) {
     return URGE_DECISION_CHOICE_COUNT;
   }
@@ -246,21 +248,70 @@ export function chooseSceneOption(state: GameState, choiceIndex: number, now: nu
     if (choiceIndex === 0) return startShortWait(now);
     if (choiceIndex === 1) {
       return {
-        screen: 'resultLog',
+        screen: 'waterDone',
         selectedIndex: 0,
         moonglyState: 'relieved',
         moonglyThought: null,
         moonglyThoughtEndsAt: null,
       };
     }
-    return openFoodGridAfterMeal(now);
+    return {
+      screen: 'walkDone',
+      selectedIndex: 0,
+      moonglyState: 'relieved',
+      moonglyThought: null,
+      moonglyThoughtEndsAt: null,
+    };
   }
 
   if (state.screen === 'urgeOkay') {
+    if (choiceIndex === 0) {
+      return {
+        screen: 'praiseDone',
+        selectedIndex: 0,
+        moonglyState: 'happy',
+        moonglyThought: null,
+        moonglyThoughtEndsAt: null,
+      };
+    }
+
     return {
-      screen: choiceIndex === 2 ? 'main' : 'resultLog',
+      screen: 'main',
       selectedIndex: 0,
-      moonglyState: choiceIndex === 1 ? 'happy' : 'satisfied',
+      moonglyState: 'waiting',
+      moonglyThought: null,
+      moonglyThoughtEndsAt: null,
+    };
+  }
+
+  if (state.screen === 'praiseDone') {
+    return {
+      screen: 'main',
+      selectedIndex: 0,
+      moonglyState: 'waiting',
+      moonglyThought: null,
+      moonglyThoughtEndsAt: null,
+    };
+  }
+
+  if (state.screen === 'waterDone') {
+    if (choiceIndex === 0) return startShortWait(now);
+    if (choiceIndex === 1) return openFoodGridAfterMeal(now);
+    return {
+      screen: 'main',
+      selectedIndex: 0,
+      moonglyState: 'waiting',
+      moonglyThought: null,
+      moonglyThoughtEndsAt: null,
+    };
+  }
+
+  if (state.screen === 'walkDone') {
+    if (choiceIndex === 0) return openFoodGridAfterMeal(now);
+    return {
+      screen: 'main',
+      selectedIndex: 0,
+      moonglyState: 'waiting',
       moonglyThought: null,
       moonglyThoughtEndsAt: null,
     };

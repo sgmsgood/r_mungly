@@ -10,8 +10,8 @@ interface ModeChoice {
 }
 
 const MODES: ModeChoice[] = [
-  { id: 'food', emoji: '🍔', label: '대신 먹어줘' },
-  { id: 'rest', emoji: '💬', label: '대화하자' },
+  { id: 'food', emoji: '🍔', label: '먹기' },
+  // { id: 'rest', emoji: '💬', label: '대화하자' },
 ];
 
 const VISIBLE_MODES = MODES.filter((mode) => mode.id === 'food' || mode.id === 'rest');
