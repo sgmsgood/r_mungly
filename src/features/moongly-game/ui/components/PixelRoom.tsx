@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { CHARACTER_CATALOG } from '../../data/characters';
 import { useGameStore } from '../../model/gameStore';
 import type { CharacterId, MoonglyState, Reaction, UserCharacter } from '../../model/gameTypes';
@@ -16,15 +16,18 @@ export function PixelRoom({
   timerText = null,
   mantraText = null,
 }: Props) {
+  const [calendarMessage, setCalendarMessage] = useState<string | null>(null);
   const reaction = useGameStore((s) => s.reaction);
   const currentCharacter = useGameStore((s) => s.currentCharacter);
   const moonglyState = useGameStore((s) => s.moonglyState);
   const moonglyThought = useGameStore((s) => s.moonglyThought);
   const moonglyThoughtEndsAt = useGameStore((s) => s.moonglyThoughtEndsAt);
   const clearMealThought = useGameStore((s) => s.clearMealThought);
-  const visibleRoomThought = thoughtText === undefined
-    ? moonglyThought ?? '우리 뭐할까?'
-    : thoughtText;
+  const visibleRoomThought = calendarMessage ?? (
+    thoughtText === undefined
+      ? moonglyThought ?? '우리 뭐할까?'
+      : thoughtText
+  );
   const moonglyImage = getCharacterImage(currentCharacter.character, moonglyState);
 
   useEffect(() => {
@@ -34,9 +37,17 @@ export function PixelRoom({
     return () => window.clearTimeout(timerId);
   }, [clearMealThought, moonglyThoughtEndsAt]);
 
+  useEffect(() => {
+    if (!calendarMessage) return;
+    const timerId = window.setTimeout(() => setCalendarMessage(null), 2600);
+    return () => window.clearTimeout(timerId);
+  }, [calendarMessage]);
+
   return (
     <Room>
-      <RoomWall />
+      <RoomWall
+        onCalendarClick={() => setCalendarMessage('열심히 준비 중')}
+      />
       <RoomFloor />
       <MoonglyStage
         thoughtText={visibleRoomThought}
@@ -62,9 +73,26 @@ function getCharacterImage(character: CharacterId, moonglyState: MoonglyState) {
   return images.basic;
 }
 
-function RoomWall() {
+function RoomWall({ onCalendarClick }: { onCalendarClick: () => void }) {
   return (
     <>
+      <button
+        className="room-calendar"
+        type="button"
+        aria-label="달력 열기"
+        onClick={onCalendarClick}
+      >
+        <span className="calendar-rings" />
+        <span className="calendar-grid">
+          {Array.from({ length: 12 }, (_, index) => (
+            <span
+              key={index}
+              className={`calendar-day${index === 10 ? ' marked' : ''}`}
+            />
+          ))}
+        </span>
+      </button>
+
       <div className="room-window">
         <div className="window-glass">
           <div className="window-hl" />
@@ -74,9 +102,16 @@ function RoomWall() {
         <div className="window-divider-v" />
       </div>
 
-      <div className="room-shelf">
-        <div className="shelf-item shelf-item-a" />
-        <div className="shelf-item shelf-item-b" />
+      <div className="room-cabinet">
+        <div className="cabinet-plant" />
+        <div className="cabinet-book cabinet-book-a" />
+        <div className="cabinet-book cabinet-book-b" />
+        <div className="cabinet-door cabinet-door-left">
+          <span />
+        </div>
+        <div className="cabinet-door cabinet-door-right">
+          <span />
+        </div>
       </div>
 
       <div className="wall-dot wd1" />
@@ -90,7 +125,7 @@ function RoomFloor() {
   return (
     <div className="room-floor">
       <RoomPlant />
-      <RoomCushion />
+      <RoomSofa />
     </div>
   );
 }
@@ -109,10 +144,12 @@ function RoomPlant() {
   );
 }
 
-function RoomCushion() {
+function RoomSofa() {
   return (
-    <div className="floor-cushion">
-      <div className="cushion-hl" />
+    <div className="floor-sofa" aria-hidden="true">
+      <div className="sofa-back" />
+      <div className="sofa-seat" />
+      <div className="sofa-hl" />
     </div>
   );
 }
