@@ -5,6 +5,9 @@ import type { CharacterId, MoonglyState, Reaction, UserCharacter } from '../../m
 import { ItemReaction } from './ItemReaction';
 import './PixelRoom.css';
 
+const IDLE_THOUGHTS = ['우리 뭐할까?', '터치해줘'];
+const IDLE_THOUGHT_INTERVAL_MS = 5000;
+
 interface Props {
   thoughtText?: string | null;
   timerText?: string | null;
@@ -20,12 +23,16 @@ export function PixelRoom({
   const reaction = useGameStore((s) => s.reaction);
   const currentCharacter = useGameStore((s) => s.currentCharacter);
   const moonglyState = useGameStore((s) => s.moonglyState);
+  const moonglyLoveEndsAt = useGameStore((s) => s.moonglyLoveEndsAt);
   const moonglyThought = useGameStore((s) => s.moonglyThought);
   const moonglyThoughtEndsAt = useGameStore((s) => s.moonglyThoughtEndsAt);
   const clearMealThought = useGameStore((s) => s.clearMealThought);
+  const showMoonglyLove = useGameStore((s) => s.showMoonglyLove);
+  const finishMoonglyLove = useGameStore((s) => s.finishMoonglyLove);
+  const [idleThought, setIdleThought] = useState(() => getRandomIdleThought());
   const visibleRoomThought = calendarMessage ?? (
     thoughtText === undefined
-      ? moonglyThought ?? '우리 뭐할까?'
+      ? moonglyThought ?? idleThought
       : thoughtText
   );
   const moonglyImage = getCharacterImage(currentCharacter.character, moonglyState);
@@ -43,6 +50,21 @@ export function PixelRoom({
     return () => window.clearTimeout(timerId);
   }, [calendarMessage]);
 
+  useEffect(() => {
+    if (thoughtText !== undefined || moonglyThought) return;
+    const timerId = window.setInterval(() => {
+      setIdleThought((current) => getRandomIdleThought(current));
+    }, IDLE_THOUGHT_INTERVAL_MS);
+    return () => window.clearInterval(timerId);
+  }, [moonglyThought, thoughtText]);
+
+  useEffect(() => {
+    if (!moonglyLoveEndsAt) return;
+    const delay = Math.max(0, moonglyLoveEndsAt - Date.now());
+    const timerId = window.setTimeout(finishMoonglyLove, delay);
+    return () => window.clearTimeout(timerId);
+  }, [finishMoonglyLove, moonglyLoveEndsAt]);
+
   return (
     <Room>
       <RoomWall
@@ -56,6 +78,7 @@ export function PixelRoom({
         isReactionShowing={Boolean(reaction)}
         imageSrc={moonglyImage}
         character={currentCharacter}
+        onCharacterTouch={showMoonglyLove}
       />
       <ReactionLayer reaction={reaction} />
     </Room>
@@ -66,8 +89,15 @@ function Room({ children }: { children: ReactNode }) {
   return <div className="pixel-room">{children}</div>;
 }
 
+function getRandomIdleThought(exclude?: string) {
+  const nextThoughts = IDLE_THOUGHTS.filter((thought) => thought !== exclude);
+  const candidates = nextThoughts.length > 0 ? nextThoughts : IDLE_THOUGHTS;
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
 function getCharacterImage(character: CharacterId, moonglyState: MoonglyState) {
   const images = CHARACTER_CATALOG[character].images;
+  if (moonglyState === 'love') return images.love;
   if (moonglyState === 'happy') return images.happy;
   if (moonglyState === 'encouraging') return images.enduring;
   return images.basic;
@@ -158,6 +188,7 @@ interface MoonglyStageProps extends Props {
   isReactionShowing: boolean;
   imageSrc: string;
   character: UserCharacter;
+  onCharacterTouch: () => void;
 }
 
 function MoonglyStage({
@@ -167,6 +198,7 @@ function MoonglyStage({
   isReactionShowing,
   imageSrc,
   character,
+  onCharacterTouch,
 }: MoonglyStageProps) {
   const visibleThoughtText = timerText || isReactionShowing ? null : thoughtText;
 
@@ -175,7 +207,11 @@ function MoonglyStage({
       <MantraBubble text={mantraText} />
       <TimerBubble text={timerText} />
       <ThoughtBubble text={visibleThoughtText} />
-      <MoonglyCharacter imageSrc={imageSrc} character={character} />
+      <MoonglyCharacter
+        imageSrc={imageSrc}
+        character={character}
+        onTouch={onCharacterTouch}
+      />
     </div>
   );
 }
@@ -212,18 +248,27 @@ function ThoughtBubble({ text }: { text?: string | null }) {
 function MoonglyCharacter({
   imageSrc,
   character,
+  onTouch,
 }: {
   imageSrc: string;
   character: UserCharacter;
+  onTouch: () => void;
 }) {
   return (
     <>
-      <img
-        src={imageSrc}
-        className="character-img"
-        alt={character.name}
-        style={{ imageRendering: 'pixelated' }}
-      />
+      <button
+        className="character-button"
+        type="button"
+        aria-label={`${character.name} 쓰다듬기`}
+        onClick={onTouch}
+      >
+        <img
+          src={imageSrc}
+          className="character-img"
+          alt={character.name}
+          style={{ imageRendering: 'pixelated' }}
+        />
+      </button>
       <span className="character-name">{character.name}</span>
     </>
   );
@@ -235,7 +280,6 @@ function ReactionLayer({ reaction }: { reaction: Reaction | null }) {
     <ItemReaction
       key={reaction.key}
       reactionKey={reaction.key}
-      emoji={reaction.emoji}
       assetPath={reaction.assetPath}
     />
   );

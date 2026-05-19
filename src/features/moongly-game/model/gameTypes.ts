@@ -15,6 +15,15 @@ export type GameScreen =
   | 'walkDone'
   | 'resultLog';
 export type GameMode = 'food' | 'exercise' | 'shower' | 'rest';
+export type FoodCategoryId =
+  | 'bunsik'
+  | 'chicken'
+  | 'chinese'
+  | 'pizzaBurger'
+  | 'dessert'
+  | 'japanese'
+  | 'western'
+  | 'meat';
 export type CharacterId = 'mozzi';
 export type MoonglyState =
   | 'waiting'
@@ -24,12 +33,14 @@ export type MoonglyState =
   | 'relieved'
   | 'comforting'
   | 'happy'
+  | 'love'
   | 'satisfied';
 
 export interface CharacterImages {
   basic: string;
   enduring: string;
   happy: string;
+  love: string;
 }
 
 export interface CharacterDefinition {
@@ -47,13 +58,13 @@ export interface UserCharacter {
 export interface GameItem {
   id: string;
   name: string;
-  emoji: string;
   kcal: string;
+  amount?: string;
+  category?: FoodCategoryId;
   assetPath?: string;
 }
 
 export interface Reaction {
-  emoji: string;
   assetPath?: string;
   key: number;
 }
@@ -71,7 +82,10 @@ export interface GameState {
   gridReadyAt: number;
   reaction: Reaction | null;
   moonglyState: MoonglyState;
+  moonglyStateBeforeLove: MoonglyState | null;
+  moonglyLoveEndsAt: number | null;
   moonglyThought: string | null;
   moonglyThoughtEndsAt: number | null;
   lastFoodIndex: number | null;
+  favoriteItemIds: string[];
 }

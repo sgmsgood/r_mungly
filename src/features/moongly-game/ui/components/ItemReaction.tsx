@@ -3,14 +3,13 @@ import { useGameStore } from '../../model/gameStore';
 import './ItemReaction.css';
 
 interface Props {
-  emoji: string;
   assetPath?: string;
   reactionKey: number;
 }
 
 const REACTION_LIFETIME_MS = 1000;
 
-export function ItemReaction({ emoji, assetPath, reactionKey }: Props) {
+export function ItemReaction({ assetPath, reactionKey }: Props) {
   const hideFoodReaction = useGameStore((s) => s.hideFoodReaction);
 
   useEffect(() => {
@@ -21,7 +20,6 @@ export function ItemReaction({ emoji, assetPath, reactionKey }: Props) {
   return (
     <ReactionBubble reactionKey={reactionKey}>
       <ReactionAsset assetPath={assetPath} />
-      <ReactionEmoji emoji={emoji} hidden={Boolean(assetPath)} />
     </ReactionBubble>
   );
 }
@@ -55,16 +53,5 @@ function ReactionAsset({ assetPath }: { assetPath?: string }) {
       }}
       alt=""
     />
-  );
-}
-
-function ReactionEmoji({ emoji, hidden }: { emoji: string; hidden: boolean }) {
-  return (
-    <span
-      className="reaction-emoji"
-      style={{ display: hidden ? 'none' : 'block' }}
-    >
-      {emoji}
-    </span>
   );
 }

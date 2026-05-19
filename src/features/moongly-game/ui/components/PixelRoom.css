@@ -889,6 +889,18 @@
   filter: drop-shadow(0 5px 0 rgba(159, 121, 94, 0.18));
 }
 
+.character-button {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.character-button:active {
+  transform: translateY(2px);
+}
+
 .character-name {
   display: none;
   font-size: 11px;

@@ -35,6 +35,7 @@ import {
 import type { GameItem, GameMode, GameState } from './gameTypes';
 
 const CHARACTER_CREATED_AT_KEY = 'moongly.character.createdAt';
+const MOONGLY_LOVE_DURATION_MS = 3000;
 
 function getInitialCharacterCreatedAt() {
   if (typeof window === 'undefined') return new Date().toISOString();
@@ -101,6 +102,11 @@ interface FoodReactionActions {
   hideFoodReaction: () => void;
 }
 
+interface CharacterActions {
+  showMoonglyLove: () => void;
+  finishMoonglyLove: () => void;
+}
+
 type GameActions =
   DeviceButtonActions &
   MainChoiceActions &
@@ -110,7 +116,8 @@ type GameActions =
   MealFollowUpActions &
   SceneChoiceActions &
   ItemChoiceActions &
-  FoodReactionActions;
+  FoodReactionActions &
+  CharacterActions;
 
 export const useGameStore = create<GameState & GameActions>((set, get) => ({
   page: 'game',
@@ -129,9 +136,12 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   gridReadyAt: 0,
   reaction: null,
   moonglyState: 'waiting',
+  moonglyStateBeforeLove: null,
+  moonglyLoveEndsAt: null,
   moonglyThought: null,
   moonglyThoughtEndsAt: null,
   lastFoodIndex: null,
+  favoriteItemIds: [],
 
   getItemsForCurrentMode: () => ITEMS[get().mode],
 
@@ -371,6 +381,30 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   }),
   pickItem: (index) => set({ selectedIndex: index }),
   hideFoodReaction: () => set({ reaction: null }),
+  showMoonglyLove: () => set((state) => {
+    const now = Date.now();
+    return {
+      moonglyState: 'love',
+      moonglyStateBeforeLove: state.moonglyState === 'love'
+        ? state.moonglyStateBeforeLove
+        : state.moonglyState,
+      moonglyLoveEndsAt: now + MOONGLY_LOVE_DURATION_MS,
+    };
+  }),
+  finishMoonglyLove: () => set((state) => {
+    if (!state.moonglyLoveEndsAt || Date.now() < state.moonglyLoveEndsAt) return {};
+    if (state.moonglyState !== 'love') {
+      return {
+        moonglyStateBeforeLove: null,
+        moonglyLoveEndsAt: null,
+      };
+    }
+    return {
+      moonglyState: state.moonglyStateBeforeLove ?? 'waiting',
+      moonglyStateBeforeLove: null,
+      moonglyLoveEndsAt: null,
+    };
+  }),
 }));
 
 export { ITEMS };

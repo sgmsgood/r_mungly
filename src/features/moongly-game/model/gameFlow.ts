@@ -381,7 +381,7 @@ export function showFoodReaction(
     screen: 'main',
     selectedIndex: 0,
     lastFoodIndex: foodIndex,
-    reaction: { emoji: item.emoji, assetPath: item.assetPath, key: now },
+    reaction: { assetPath: item.assetPath, key: now },
     moonglyState: 'happy',
     moonglyThought: MEAL_THOUGHT,
     moonglyThoughtEndsAt: now + FOOD_REACTION_LIFETIME_MS + MEAL_THOUGHT_DURATION_MS,

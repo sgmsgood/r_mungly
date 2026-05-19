@@ -4,8 +4,8 @@ import { PixelRoom } from './PixelRoom';
 import './ResistTimer.css';
 
 const TIMER_CHOICES = [
-  { id: 'check', label: '지금 확인하기' },
-  { id: 'feed', label: '뭉글리 먹이기' },
+  { id: 'check', label: '그만 참을래' },
+  { id: 'feed', label: '뭉글리 먹일래' },
 ];
 
 function formatLeft(ms: number) {

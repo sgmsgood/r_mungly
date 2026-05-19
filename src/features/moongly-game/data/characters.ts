@@ -8,7 +8,7 @@ export const CHARACTER_CATALOG: Record<CharacterId, CharacterDefinition> = {
       basic: '/assets/characters/mozzi/basic.gif',
       enduring: '/assets/characters/mozzi/enduring.gif',
       happy: '/assets/characters/mozzi/happy.gif',
+      love: '/assets/characters/mozzi/love_first.gif',
     },
   },
 } as const;
-
