@@ -3,6 +3,7 @@ import { CHARACTER_CATALOG } from '../data/characters';
 import { ITEMS } from '../data/gameItems';
 import {
   canPickFood,
+  chooseResistTimerOption,
   chooseSceneOption,
   clearMealThought,
   closeMealChoices,
@@ -10,11 +11,13 @@ import {
   getNextItemIndex,
   getNextMainMode,
   getNextMealFollowUpChoice,
+  getNextResistTimerChoice,
   getNextSceneChoice,
   getPreviousFoodChoice,
   getPreviousItemIndex,
   getPreviousMainMode,
   getPreviousMealFollowUpChoice,
+  getPreviousResistTimerChoice,
   getPreviousSceneChoice,
   isMealFollowUpShowing,
   isChoiceScene,
@@ -85,6 +88,7 @@ interface MealFollowUpActions {
 
 interface SceneChoiceActions {
   chooseSceneOption: (index: number) => void;
+  chooseResistTimerOption: (index: number) => void;
   finishResistTimer: () => void;
 }
 
@@ -173,6 +177,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
 
     if (screen === 'resistTimer') {
+      set({ selectedIndex: getPreviousResistTimerChoice(selectedIndex) });
       return;
     }
 
@@ -222,6 +227,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
 
     if (screen === 'resistTimer') {
+      set({ selectedIndex: getNextResistTimerChoice(selectedIndex) });
       return;
     }
 
@@ -267,6 +273,7 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
     }
 
     if (state.screen === 'resistTimer') {
+      get().chooseResistTimerOption(state.selectedIndex);
       return;
     }
 
@@ -344,6 +351,10 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
   closeMealChoices: () => set(closeMealChoices()),
   chooseSceneOption: (index) => {
     const patch = chooseSceneOption(get(), index, Date.now());
+    if (patch) set(patch);
+  },
+  chooseResistTimerOption: (index) => {
+    const patch = chooseResistTimerOption(get(), index, Date.now());
     if (patch) set(patch);
   },
   finishResistTimer: () => set(finishResistTimer()),

@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../../model/gameStore';
 import { PixelRoom } from './PixelRoom';
+import './ResistTimer.css';
+
+const TIMER_CHOICES = [
+  { id: 'check', label: '지금 확인하기' },
+  { id: 'feed', label: '뭉글리 먹이기' },
+];
 
 function formatLeft(ms: number) {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
@@ -12,6 +18,9 @@ function formatLeft(ms: number) {
 export function ResistTimer() {
   const resistEndsAt = useGameStore((s) => s.resistEndsAt);
   const finishResistTimer = useGameStore((s) => s.finishResistTimer);
+  const selectedIndex = useGameStore((s) => s.selectedIndex);
+  const pickItem = useGameStore((s) => s.pickItem);
+  const chooseResistTimerOption = useGameStore((s) => s.chooseResistTimerOption);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -29,10 +38,19 @@ export function ResistTimer() {
   }, [done, finishResistTimer]);
 
   return (
-    <ResistingRoom
-      timerText={done ? '0:00' : formatLeft(remaining)}
-      mantraText={done ? '잘 참았어?' : '참을 수 있다,,,'}
-    />
+    <>
+      <ResistingRoom
+        timerText={done ? '0:00' : formatLeft(remaining)}
+        mantraText={done ? '잘 참았어?' : '참을 수 있다,,,'}
+      />
+      <ResistTimerChoices
+        selectedIndex={selectedIndex}
+        onPickChoice={(index) => {
+          pickItem(index);
+          chooseResistTimerOption(index);
+        }}
+      />
+    </>
   );
 }
 
@@ -49,5 +67,28 @@ function ResistingRoom({
       timerText={timerText}
       mantraText={mantraText}
     />
+  );
+}
+
+function ResistTimerChoices({
+  selectedIndex,
+  onPickChoice,
+}: {
+  selectedIndex: number;
+  onPickChoice: (index: number) => void;
+}) {
+  return (
+    <div className="resist-timer-choices">
+      {TIMER_CHOICES.map((choice, index) => (
+        <button
+          key={choice.id}
+          className={`resist-timer-choice resist-timer-choice-${choice.id} ${selectedIndex === index ? 'selected' : ''}`}
+          type="button"
+          onClick={() => onPickChoice(index)}
+        >
+          <span>{choice.label}</span>
+        </button>
+      ))}
+    </div>
   );
 }

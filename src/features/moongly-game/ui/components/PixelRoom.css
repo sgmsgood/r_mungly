@@ -806,7 +806,7 @@
   white-space: nowrap;
   --mantra-x-right: 40px;
   --mantra-x-left: -120px;
-  animation: mantra-drift 26s linear infinite;
+  animation: mantra-drift 16s linear infinite;
   z-index: 4;
 }
 
@@ -834,12 +834,12 @@
     transform: translateX(var(--mantra-x-right));
   }
 
-  2%, 12% {
+  2%, 18.75% {
     opacity: 1;
     transform: translateX(var(--mantra-x-right));
   }
 
-  14%, 50% {
+  20.75%, 50% {
     opacity: 0;
     transform: translateX(var(--mantra-x-right));
   }
@@ -849,12 +849,12 @@
     transform: translateX(var(--mantra-x-left));
   }
 
-  54%, 64% {
+  54%, 70.75% {
     opacity: 1;
     transform: translateX(var(--mantra-x-left));
   }
 
-  66%, 100% {
+  72.75%, 100% {
     opacity: 0;
     transform: translateX(var(--mantra-x-left));
   }

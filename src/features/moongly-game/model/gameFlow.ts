@@ -8,6 +8,7 @@ const RESIST_DURATION_MS = TEN_MINUTES_MS;
 const SHORT_RESIST_DURATION_MS = TEN_MINUTES_MS;
 const FOOD_CHOICE_COUNT = 2;
 const MEAL_FOLLOW_UP_COUNT = 2;
+const RESIST_TIMER_CHOICE_COUNT = 2;
 const TIMER_DONE_CHOICE_COUNT = 1;
 const URGE_CHECK_CHOICE_COUNT = 3;
 const URGE_DECISION_CHOICE_COUNT = 3;
@@ -48,6 +49,14 @@ export function getPreviousMealFollowUpChoice(index: number) {
 
 export function getNextMealFollowUpChoice(index: number) {
   return getNextItemIndex(index, MEAL_FOLLOW_UP_COUNT);
+}
+
+export function getPreviousResistTimerChoice(index: number) {
+  return getPreviousItemIndex(index, RESIST_TIMER_CHOICE_COUNT);
+}
+
+export function getNextResistTimerChoice(index: number) {
+  return getNextItemIndex(index, RESIST_TIMER_CHOICE_COUNT);
 }
 
 export function getSceneChoiceCount(state: GameState) {
@@ -199,6 +208,24 @@ export function finishResistTimer(): GamePatch {
     moonglyThought: null,
     moonglyThoughtEndsAt: null,
   };
+}
+
+export function chooseResistTimerOption(state: GameState, choiceIndex: number, now: number): GamePatch | null {
+  if (state.screen !== 'resistTimer') return null;
+
+  if (choiceIndex === 0) {
+    return {
+      screen: 'urgeCheck',
+      selectedIndex: 0,
+      resistEndsAt: null,
+      reaction: null,
+      moonglyState: 'tempted',
+      moonglyThought: null,
+      moonglyThoughtEndsAt: null,
+    };
+  }
+
+  return openFoodGridAfterMeal(now);
 }
 
 export function chooseSceneOption(state: GameState, choiceIndex: number, now: number): GamePatch | null {
